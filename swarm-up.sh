@@ -13,6 +13,7 @@ VNET_LOCATION="Southeast Asia"
 VM_SIZE=Small
 CS_NAME=nerdswarm
 VM_IMAGE=b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_10-amd64-server-20150202-en-us-30GB
+VM_USER_NAME=avranju
 
 # generate new ssl key
 openssl req -x509 -nodes -newkey rsa:2048 -subj '/O=Microsoft Open Technologies, Inc./L=Redmond/C=US/CN=msopentech.com' -keyout swarm-ssh.key -out swarm-ssh.pem
@@ -37,39 +38,39 @@ echo "curl -sSL https://get.docker.com/ubuntu/ | sudo sh" >> cloud-init.sh
 echo "sudo docker pull swarm" >> cloud-init.sh
 
 # create master swarm node
-azure vm create -n swarm-master -e 22000 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh $VM_IMAGE avranju
+azure vm create -n swarm-master -e 22000 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh $VM_IMAGE $VM_USER_NAME
 
 # create worker swarm nodes
-azure vm create -n swarm-00 -e 22001 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh --connect $VM_IMAGE avranju
+azure vm create -n swarm-00 -e 22001 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh --connect $VM_IMAGE $VM_USER_NAME
 
-azure vm create -n swarm-01 -e 22002 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh --connect $VM_IMAGE avranju
+azure vm create -n swarm-01 -e 22002 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh --connect $VM_IMAGE $VM_USER_NAME
 
-azure vm create -n swarm-02 -e 22003 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh --connect $VM_IMAGE avranju
+azure vm create -n swarm-02 -e 22003 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh --connect $VM_IMAGE $VM_USER_NAME
 
 # create ssh config file
 echo "Host swarm-master" > ssh.config
-echo "    User avranju" >> ssh.config
+echo "    User $VM_USER_NAME" >> ssh.config
 echo "    HostName $CS_NAME.cloudapp.net" >> ssh.config
 echo "    Port 22000" >> ssh.config
 echo "    IdentityFile ./swarm-ssh.key" >> ssh.config
 echo "    StrictHostKeyChecking no" >> ssh.config
 
 echo "Host swarm-00" >> ssh.config
-echo "    User avranju" >> ssh.config
+echo "    User $VM_USER_NAME" >> ssh.config
 echo "    HostName $CS_NAME.cloudapp.net" >> ssh.config
 echo "    Port 22001" >> ssh.config
 echo "    IdentityFile ./swarm-ssh.key" >> ssh.config
 echo "    StrictHostKeyChecking no" >> ssh.config
 
 echo "Host swarm-01" >> ssh.config
-echo "    User avranju" >> ssh.config
+echo "    User $VM_USER_NAME" >> ssh.config
 echo "    HostName $CS_NAME.cloudapp.net" >> ssh.config
 echo "    Port 22002" >> ssh.config
 echo "    IdentityFile ./swarm-ssh.key" >> ssh.config
 echo "    StrictHostKeyChecking no" >> ssh.config
 
 echo "Host swarm-02" >> ssh.config
-echo "    User avranju" >> ssh.config
+echo "    User $VM_USER_NAME" >> ssh.config
 echo "    HostName $CS_NAME.cloudapp.net" >> ssh.config
 echo "    Port 22002" >> ssh.config
 echo "    IdentityFile ./swarm-ssh.key" >> ssh.config
