@@ -20,9 +20,6 @@ ssh-keygen -R [$CS_NAME.cloudapp.net]:22003 -f ~/.ssh/known_hosts
 # delete ssh config file
 rm ssh.config 2> /dev/null
 
-# delete cloud init script
-rm cloud-init.sh 2> /dev/null
-
 # delete vms
 azure vm delete -q swarm-master
 azure vm delete -q swarm-00

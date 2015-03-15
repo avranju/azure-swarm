@@ -31,12 +31,6 @@ ssh-keygen -R [$CS_NAME.cloudapp.net]:22003 -f ~/.ssh/known_hosts
 # create vnet
 #azure network vnet create --location="$VNET_LOCATION" --address-space=172.16.0.0 $VNET_NAME
 
-# generate custom data file for cloud-init script; this will install
-# the latest release of docker on the VM
-echo "#!/bin/sh" > cloud-init.sh
-echo "curl -sSL https://get.docker.com/ubuntu/ | sudo sh" >> cloud-init.sh
-echo "sudo docker pull swarm" >> cloud-init.sh
-
 # create master swarm node
 azure vm create -n swarm-master -e 22000 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh $VM_IMAGE $VM_USER_NAME
 
@@ -72,7 +66,7 @@ echo "    StrictHostKeyChecking no" >> ssh.config
 echo "Host swarm-02" >> ssh.config
 echo "    User $VM_USER_NAME" >> ssh.config
 echo "    HostName $CS_NAME.cloudapp.net" >> ssh.config
-echo "    Port 22002" >> ssh.config
+echo "    Port 22003" >> ssh.config
 echo "    IdentityFile ./swarm-ssh.key" >> ssh.config
 echo "    StrictHostKeyChecking no" >> ssh.config
 
