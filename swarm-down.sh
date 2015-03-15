@@ -2,6 +2,7 @@
 
 # script parameters
 VNET_NAME=swarmvnet
+VNET_LOCATION="Southeast Asia"
 VM_SIZE=Small
 CS_NAME=nerdswarm
 VM_IMAGE=b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_10-amd64-server-20150202-en-us-30GB
@@ -28,5 +29,8 @@ azure vm delete -q swarm-00
 azure vm delete -q swarm-01
 azure vm delete -q swarm-02
 
+# delete cloud service
+azure service delete -q $CS_NAME
+
 # delete vnet
-azure network vnet delete -q swarmvnet
+#azure network vnet delete -q swarmvnet
