@@ -30,4 +30,4 @@ azure vm delete -q swarm-02
 azure service delete -q $CS_NAME
 
 # delete vnet
-#azure network vnet delete -q swarmvnet
+azure network vnet delete -q swarmvnet

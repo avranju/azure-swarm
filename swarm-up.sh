@@ -29,7 +29,7 @@ ssh-keygen -R [$CS_NAME.cloudapp.net]:22002 -f ~/.ssh/known_hosts
 ssh-keygen -R [$CS_NAME.cloudapp.net]:22003 -f ~/.ssh/known_hosts
 
 # create vnet
-#azure network vnet create --location="$VNET_LOCATION" --address-space=172.16.0.0 $VNET_NAME
+azure network vnet create --location="$VNET_LOCATION" --address-space=172.16.0.0 $VNET_NAME
 
 # create master swarm node
 azure vm create -n swarm-master -e 22000 -z $VM_SIZE --virtual-network-name=$VNET_NAME $CS_NAME --ssh-cert=swarm-ssh.pem --no-ssh-password --custom-data ./cloud-init.sh $VM_IMAGE $VM_USER_NAME
