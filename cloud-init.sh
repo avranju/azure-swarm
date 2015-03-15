@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DOCKER_HOST="0.0.0.0:2375"
+export DOCKER_HOST="0.0.0.0:2375"
 
 # install docker
 curl -sSL https://get.docker.com/ubuntu/ | sudo sh
