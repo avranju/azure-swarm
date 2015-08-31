@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Before running this script please make sure that you have the following
 # installed and setup:
@@ -42,8 +42,14 @@ mkdir -p output
 # save the prefix into a file
 echo $NAME_SUFFIX > output/swarm-$NAME_SUFFIX.deployment
 
-# generate new ssl key
-openssl req -x509 -nodes -newkey rsa:2048 -subj '/O=Microsoft Open Technologies, Inc./L=Redmond/C=US/CN=msopentech.com' -keyout $SSH_KEY_FILE -out $SSH_CERT
+# generate new ssl key; this needs to be run with slightly
+# different syntax if we're on Windows in a MINGW bash; if
+# check below taken from: http://stackoverflow.com/a/31990313/8080
+if [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+	openssl req -x509 -nodes -newkey rsa:2048 -subj '//O=Microsoft Open Technologies, Inc.\L=Redmond\C=US\CN=msopentech.com' -keyout $SSH_KEY_FILE -out $SSH_CERT
+else
+	openssl req -x509 -nodes -newkey rsa:2048 -subj '/O=Microsoft Open Technologies, Inc./L=Redmond/C=US/CN=msopentech.com' -keyout $SSH_KEY_FILE -out $SSH_CERT
+fi
 
 # set permissions on key file so ssh is happy
 chmod 400 $SSH_KEY_FILE

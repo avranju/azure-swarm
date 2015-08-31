@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # check that deployment file name is passed in
 if [ -z "$1" ];
@@ -25,10 +25,10 @@ rm -f $SSH_KEY_FILE 2> /dev/null
 rm -f $SSH_CERT 2> /dev/null
 
 # remove cached ssh keys
-ssh-keygen -R [$CS_NAME.cloudapp.net]:22000 -f ~/.ssh/known_hosts
-ssh-keygen -R [$CS_NAME.cloudapp.net]:22001 -f ~/.ssh/known_hosts
-ssh-keygen -R [$CS_NAME.cloudapp.net]:22002 -f ~/.ssh/known_hosts
-ssh-keygen -R [$CS_NAME.cloudapp.net]:22003 -f ~/.ssh/known_hosts
+for i in `seq 0 $SWARM_WORKER_NODES`;
+do
+	ssh-keygen -R [$CS_NAME.cloudapp.net]:`expr 22000 + $i` -f ~/.ssh/known_hosts
+done
 
 # delete ssh config file
 rm $SSH_CONFIG_FILE 2> /dev/null
