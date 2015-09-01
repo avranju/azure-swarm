@@ -54,5 +54,5 @@ echo azure network vnet delete -q $VNET_NAME
 azure network vnet delete -q $VNET_NAME
 
 # delete storage account
-echo azure storage account delete $STORAGE_ACCOUNT_NAME
+echo azure storage account delete -q $STORAGE_ACCOUNT_NAME
 azure storage account delete -q $STORAGE_ACCOUNT_NAME

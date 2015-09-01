@@ -112,3 +112,6 @@ do
 	echo "    IdentityFile ./$SSH_KEY_FILE" >> $SSH_CONFIG_FILE
 	echo "    StrictHostKeyChecking no" >> $SSH_CONFIG_FILE	
 done
+
+# create the swarm cluster
+/bin/bash ./create-cluster.sh
