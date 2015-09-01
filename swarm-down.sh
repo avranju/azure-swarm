@@ -1,9 +1,12 @@
 #!/bin/bash
 
+# include utils.sh
+source ./utils.sh
+
 # check that deployment file name is passed in
 if [ -z "$1" ];
 then
-	echo "Please pass in the deployment file name"
+	printmsg "Please pass in the deployment file name"
 	exit 1
 fi
 
@@ -35,24 +38,24 @@ done
 rm $SSH_CONFIG_FILE 2> /dev/null
 
 # delete vms
-echo azure vm delete -b -q -d $CS_NAME swarm-master
+printmsg "azure vm delete -b -q -d $CS_NAME swarm-master"
 azure vm delete -b -q -d $CS_NAME swarm-master
 
 SWARM_NODES_TO=`expr $SWARM_WORKER_NODES - 1`
 for i in `seq 0 $SWARM_NODES_TO`;
 do
-	echo azure vm delete -b -q -d $CS_NAME `printf "swarm-%02d" $i`
+	printmsg "azure vm delete -b -q -d $CS_NAME `printf "swarm-%02d" $i`"
 	azure vm delete -b -q -d $CS_NAME `printf "swarm-%02d" $i`
 done
 
 # delete cloud service
-echo azure service delete -q $CS_NAME
+printmsg "azure service delete -q $CS_NAME"
 azure service delete -q $CS_NAME
 
 # delete vnet
-echo azure network vnet delete -q $VNET_NAME
+printmsg "azure network vnet delete -q $VNET_NAME"
 azure network vnet delete -q $VNET_NAME
 
 # delete storage account
-echo azure storage account delete -q $STORAGE_ACCOUNT_NAME
+printmsg "azure storage account delete -q $STORAGE_ACCOUNT_NAME"
 azure storage account delete -q $STORAGE_ACCOUNT_NAME

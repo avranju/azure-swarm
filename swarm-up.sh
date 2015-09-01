@@ -1,13 +1,20 @@
 #!/bin/bash
 
+# include utils.sh
+source ./utils.sh
+
 # Before running this script please make sure that you have the following
 # installed and setup:
+#
 #   [1] OpenSSL
 #	[2] Node.js
 #	[3] Azure cross platform CLI - you can simply run:
 #         sudo npm install -g azure-cli
 #	[4] JSON CLI parser. Install with:
 #		  sudo npm install -g json
+#
+# And if you're on Windows you'll need a bash shell. I've used the Git bash
+# with great success.
 
 # randomly generated string used as a prefix for all Azure resource names
 NAME_SUFFIX=`node -e 'console.log(require("crypto").randomBytes(4).toString("hex"))'`
@@ -60,21 +67,24 @@ fi
 chmod 400 $SSH_KEY_FILE
 
 # create storage account
+printmsg "Creating storage account $STORAGE_ACCOUNT_NAME"
 azure storage account create -l "$VNET_LOCATION" --type LRS $STORAGE_ACCOUNT_NAME
 
 # fetch storage account key
+printmsg "Getting storage account key for $STORAGE_ACCOUNT_NAME"
 STORAGE_KEY=`azure storage account keys list $STORAGE_ACCOUNT_NAME --json | json -a primaryKey`
 
 # create a container for vhds
+printmsg "Creating container 'vhds' in storage account $STORAGE_ACCOUNT_NAME"
 azure storage container create -a $STORAGE_ACCOUNT_NAME -k $STORAGE_KEY vhds
 
 # create vnet
-echo Creating vnet $VNET_NAME
+printmsg "Creating vnet $VNET_NAME"
 azure network vnet create --location="$VNET_LOCATION" \
 	--address-space=172.16.0.0 $VNET_NAME
 
 # create master swarm node
-echo Creating docker swarm master node swarm-master
+printmsg "Creating docker swarm master node swarm-master"
 azure vm create -n swarm-master -e 22000 -z $VM_SIZE \
 	--virtual-network-name=$VNET_NAME $CS_NAME \
 	--ssh-cert=$SSH_CERT --no-ssh-password \
@@ -86,7 +96,7 @@ azure vm create -n swarm-master -e 22000 -z $VM_SIZE \
 SWARM_NODES_TO=`expr $SWARM_WORKER_NODES - 1`
 for i in `seq 0 $SWARM_NODES_TO`;
 do
-	echo Creating docker swarm worker node `printf "swarm-%02d" $i`
+	printmsg "Creating docker swarm worker node `printf "swarm-%02d" $i`"
 	azure vm create -n `printf "swarm-%02d" $i` -e `expr 22001 + $i` -z $VM_SIZE \
 		--virtual-network-name=$VNET_NAME $CS_NAME \
 		--ssh-cert=$SSH_CERT --no-ssh-password \
@@ -114,4 +124,4 @@ do
 done
 
 # create the swarm cluster
-/bin/bash ./create-cluster.sh
+/bin/bash ./create-cluster.sh output/swarm-$NAME_SUFFIX.deployment
