@@ -11,7 +11,7 @@ fi
 NAME_SUFFIX=`cat $1`
 
 # script parameters
-CS_NAME=nerdswarm-$NAME_SUFFIX
+CS_NAME=dswarm-$NAME_SUFFIX
 SSH_KEY_FILE=output/swarm-ssh-$NAME_SUFFIX.key
 SSH_CERT=output/swarm-ssh-$NAME_SUFFIX.pem
 SSH_CONFIG_FILE=output/ssh-$NAME_SUFFIX.config
@@ -35,14 +35,14 @@ done
 rm $SSH_CONFIG_FILE 2> /dev/null
 
 # delete vms
-echo azure vm delete -b -q swarm-master
-azure vm delete -b -q swarm-master
+echo azure vm delete -b -q -d $CS_NAME swarm-master
+azure vm delete -b -q -d $CS_NAME swarm-master
 
 SWARM_NODES_TO=`expr $SWARM_WORKER_NODES - 1`
 for i in `seq 0 $SWARM_NODES_TO`;
 do
-	echo azure vm delete -b -q `printf "swarm-%02d" $i`
-	azure vm delete -b -q `printf "swarm-%02d" $i`
+	echo azure vm delete -b -q -d $CS_NAME `printf "swarm-%02d" $i`
+	azure vm delete -b -q -d $CS_NAME `printf "swarm-%02d" $i`
 done
 
 # delete cloud service
