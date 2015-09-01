@@ -3,9 +3,11 @@
 # Before running this script please make sure that you have the following
 # installed and setup:
 #   [1] OpenSSL
-#		[2] Node.js
-#		[3] Azure cross platform CLI - you can simply run:
-#         sudo npm install azure-cli -g
+#	[2] Node.js
+#	[3] Azure cross platform CLI - you can simply run:
+#         sudo npm install -g azure-cli
+#	[4] JSON CLI parser. Install with:
+#		  sudo npm install -g json
 
 # randomly generated string used as a prefix for all Azure resource names
 NAME_SUFFIX=`node -e 'console.log(require("crypto").randomBytes(4).toString("hex"))'`
@@ -21,6 +23,9 @@ VM_SIZE=Small
 
 # name of the cloud service where the VMs will be hosted
 CS_NAME=dswarm-$NAME_SUFFIX
+
+# name of the storage account to use
+STORAGE_ACCOUNT_NAME=dswarm$NAME_SUFFIX
 
 # the Ubuntu Linux VM image to be used
 VM_IMAGE=b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-14_04_3-LTS-amd64-server-20150805-en-us-30GB
@@ -54,6 +59,15 @@ fi
 # set permissions on key file so ssh is happy
 chmod 400 $SSH_KEY_FILE
 
+# create storage account
+azure storage account create -l "$VNET_LOCATION" --type LRS $STORAGE_ACCOUNT_NAME
+
+# fetch storage account key
+STORAGE_KEY=`azure storage account keys list $STORAGE_ACCOUNT_NAME --json | json -a primaryKey`
+
+# create a container for vhds
+azure storage container create -a $STORAGE_ACCOUNT_NAME -k $STORAGE_KEY vhds
+
 # create vnet
 echo Creating vnet $VNET_NAME
 azure network vnet create --location="$VNET_LOCATION" \
@@ -64,7 +78,8 @@ echo Creating docker swarm master node swarm-master
 azure vm create -n swarm-master -e 22000 -z $VM_SIZE \
 	--virtual-network-name=$VNET_NAME $CS_NAME \
 	--ssh-cert=$SSH_CERT --no-ssh-password \
-	--custom-data ./cloud-init.sh $VM_IMAGE $VM_USER_NAME
+	--custom-data ./cloud-init.sh $VM_IMAGE $VM_USER_NAME \
+	-u https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/vhds/swarm-master-$NAME_SUFFIX.vhd
 
 # create worker swarm nodes
 
@@ -75,7 +90,8 @@ do
 	azure vm create -n `printf "swarm-%02d" $i` -e `expr 22001 + $i` -z $VM_SIZE \
 		--virtual-network-name=$VNET_NAME $CS_NAME \
 		--ssh-cert=$SSH_CERT --no-ssh-password \
-		--custom-data ./cloud-init.sh --connect $VM_IMAGE $VM_USER_NAME
+		--custom-data ./cloud-init.sh --connect $VM_IMAGE $VM_USER_NAME \
+		-u https://$STORAGE_ACCOUNT_NAME.blob.core.windows.net/vhds/`printf "swarm-%02d-$NAME_SUFFIX" $i`.vhd
 done
 
 # create ssh config file
