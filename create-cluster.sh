@@ -19,6 +19,9 @@ SSH_CONFIG_FILE=output/ssh-$NAME_SUFFIX.config
 # number of swarm worker nodes
 SWARM_WORKER_NODES=3
 
+# name of the cloud service where the VMs will be hosted
+CS_NAME=dswarm-$NAME_SUFFIX
+
 # create the cluster id
 printmsg "Creating swarm cluster ID"
 
@@ -35,6 +38,10 @@ for i in `seq 0 $SWARM_NODES_TO`;
 do
 	printmsg "Joining `printf "swarm-%02d" $i` to cluster"
 	VM_NAME=`printf "swarm-%02d" $i`
+	
+	# wait for VM to become ready
+	waitVMReadyRole $VM_NAME $CS_NAME
+	
 	EXTRACT_IP="\`ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{print \$1}'\`:2375"
 	ssh -F $SSH_CONFIG_FILE $VM_NAME \
 		"docker -H=0.0.0.0:2375 run -d swarm join --addr=$EXTRACT_IP token://$SWARM_CLUSTER_ID"

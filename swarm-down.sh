@@ -56,6 +56,12 @@ azure service delete -q $CS_NAME
 printmsg "azure network vnet delete -q $VNET_NAME"
 azure network vnet delete -q $VNET_NAME
 
+# wait for VMs to all be deleted before deleting the storage accounts
+for i in `seq 0 $SWARM_NODES_TO`;
+do
+	waitVMDelete `printf "swarm-%02d" $i` $CS_NAME
+done
+
 # delete storage account
 printmsg "azure storage account delete -q $STORAGE_ACCOUNT_NAME"
 azure storage account delete -q $STORAGE_ACCOUNT_NAME
