@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# include utils.sh
-source ./utils.sh
-
 # check that deployment file name is passed in
 if [ -z "$1" ];
 then
@@ -13,17 +10,17 @@ fi
 # deployment id is passed as a command line param
 NAME_SUFFIX=`cat $1`
 
-# ssh configuration file
-SSH_CONFIG_FILE=output/ssh-$NAME_SUFFIX.config
+# include options.sh for all the variables
+source ./options.sh
 
-# number of swarm worker nodes
-SWARM_WORKER_NODES=3
-
-# name of the cloud service where the VMs will be hosted
-CS_NAME=dswarm-$NAME_SUFFIX
+# include utils.sh
+source ./utils.sh
 
 # create the cluster id
 printmsg "Creating swarm cluster ID"
+
+# wait for VM to become ready
+waitVMReadyRole swarm-master $CS_NAME
 
 # make sure that the swarm image has been pulled into docker
 ssh -F $SSH_CONFIG_FILE swarm-master "docker -H=0.0.0.0:2375 pull swarm"

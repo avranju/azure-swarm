@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# include utils.sh
-source ./utils.sh
-
 # check that deployment file name is passed in
 if [ -z "$1" ];
 then
@@ -13,16 +10,11 @@ fi
 # deployment id is passed as a command line param
 NAME_SUFFIX=`cat $1`
 
-# script parameters
-CS_NAME=dswarm-$NAME_SUFFIX
-SSH_KEY_FILE=output/swarm-ssh-$NAME_SUFFIX.key
-SSH_CERT=output/swarm-ssh-$NAME_SUFFIX.pem
-SSH_CONFIG_FILE=output/ssh-$NAME_SUFFIX.config
-VNET_NAME=swarmvnet-$NAME_SUFFIX
-STORAGE_ACCOUNT_NAME=dswarm$NAME_SUFFIX
+# include options.sh for all the variables
+source ./options.sh
 
-# number of swarm worker nodes to delete
-SWARM_WORKER_NODES=3
+# include utils.sh
+source ./utils.sh
 
 # remove ssh keys
 rm -f $SSH_KEY_FILE 2> /dev/null
