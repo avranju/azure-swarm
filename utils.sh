@@ -38,3 +38,49 @@ function waitVMDelete {
 	done
 }
 
+RUN_CMD_RETRY_COUNT=5
+
+function runCmd {
+	_CMD=$1
+	_RUN_COUNT=1
+	local _STATUS=1
+	
+	printmsg "Running command: $_CMD"
+	while [ $_STATUS != 0 ]
+	do
+		$_CMD
+		
+		# if the exit code is not zero then retry
+		local _STATUS=$?
+		if [[ $_STATUS -ne 0 ]]; then
+			_RUN_COUNT=`expr $_RUN_COUNT + 1`
+			if [[ $_RUN_COUNT -gt $RUN_CMD_RETRY_COUNT ]]; then
+				printmsg "Tried running '$_CMD' $RUN_CMD_RETRY_COUNT times and failed. Giving up!"
+				break
+			fi
+
+			printmsg "Retrying command $_CMD"
+			sleep 3
+		fi
+	done
+}
+
+function runSSHCmd {
+	_SSH_CONFIG_FILE=$1
+	_VM_NAME=$2
+	_CMD=$3
+	local _STATUS=1
+
+	printmsg "Running SSH command: $_CMD"	
+	while [ $_STATUS != 0 ]
+	do
+		ssh -F $_SSH_CONFIG_FILE $_VM_NAME $_CMD
+
+		# if the exit code is not zero then retry
+		local _STATUS=$?
+		if [[ $_STATUS -ne 0 ]]; then
+			printmsg "Retrying command $_CMD"
+			sleep 3
+		fi
+	done
+}

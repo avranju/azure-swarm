@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# include utils.sh
+source ./utils.sh
+
 # check that deployment file name is passed in
 if [ -z "$1" ];
 then
@@ -12,9 +15,6 @@ NAME_SUFFIX=`cat $1`
 
 # include options.sh for all the variables
 source ./options.sh
-
-# include utils.sh
-source ./utils.sh
 
 # remove ssh keys
 rm -f $SSH_KEY_FILE 2> /dev/null
@@ -55,5 +55,5 @@ do
 done
 
 # delete storage account
-printmsg "azure storage account delete -q $STORAGE_ACCOUNT_NAME"
-azure storage account delete -q $STORAGE_ACCOUNT_NAME
+# printmsg "azure storage account delete -q $STORAGE_ACCOUNT_NAME"
+runCmd "azure storage account delete -q $STORAGE_ACCOUNT_NAME"
